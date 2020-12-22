@@ -40,7 +40,7 @@ public class CongViecAdapter extends BaseAdapter {
     }
     private class ViewHolder{
         TextView txtTen;
-        ImageView imgDalete , imgEdit;
+        ImageView imgDalete , imgEdit, imgwu;
     }
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
@@ -52,6 +52,7 @@ public class CongViecAdapter extends BaseAdapter {
             holder.txtTen = view.findViewById(R.id.namework);
             holder.imgDalete = view.findViewById(R.id.delete);
             holder.imgEdit = view.findViewById(R.id.edit);
+            holder.imgwu = view.findViewById(R.id.imageWu);
             view.setTag(holder);
         } else {
             holder = (ViewHolder) view.getTag();
@@ -59,6 +60,13 @@ public class CongViecAdapter extends BaseAdapter {
         final CongViec congViec = congViecList.get(i);
         holder.txtTen.setText(congViec.getTenCV());
         // bắt sự kiện
+        holder.imgwu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // dat gio
+                context.DialogWakeUp();
+            }
+        });
         holder.imgEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

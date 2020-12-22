@@ -3,8 +3,10 @@ package com.example.c_note;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -16,21 +18,22 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity {
     Database database;
     ListView lvCongViec;
     ArrayList<CongViec> arrayCongViec;
     CongViecAdapter adapter;
-    Button btnwu;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        btnwu = findViewById(R.id.btn_baothuc);
         lvCongViec = findViewById(R.id.listView);
         arrayCongViec = new ArrayList<>();
         adapter = new CongViecAdapter(this , R.layout.dong_cong_viec , arrayCongViec);
@@ -45,13 +48,7 @@ public class MainActivity extends AppCompatActivity {
 
         GetDataCongViec();
 
-        btnwu.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intentcv = new Intent(MainActivity.this , MainActivityWakeUp.class);
-                startActivity(intentcv);
-            }
-        });
+
     }
 
     @Override
@@ -123,6 +120,41 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         dialog.show();
+    }
+    public void DialogWakeUp(){
+        final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_wakeup);
+        dialog.show();
+        Button btnok = dialog.findViewById(R.id.btnok);
+        Button btncancel = dialog.findViewById(R.id.btncancel);
+        final TextView txtHienthi = dialog.findViewById(R.id.twwu);
+        final TimePicker timePicker = dialog.findViewById(R.id.timePickerwu);
+        final Calendar calandar = Calendar.getInstance();
+        final AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE); ; // truy cập vào hệ thống báo động của điện thoại
+        final PendingIntent[] pendingIntent = new PendingIntent[1];
+        final Intent intent = new Intent(MainActivity.this, AlarmReceiver.class);
+        btnok.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                calandar.set(Calendar.HOUR_OF_DAY, timePicker.getCurrentHour());
+                calandar.set(Calendar.MINUTE, timePicker.getCurrentMinute());
+                int gio = timePicker.getCurrentHour();
+                int phut = timePicker.getCurrentMinute();
+                intent.putExtra("extra","on");
+                pendingIntent[0] = PendingIntent.getBroadcast(
+                        MainActivity.this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT); // tồn tại ngay cả khi thoát ứng dụng
+                alarmManager.set(
+                        AlarmManager.RTC_WAKEUP, calandar.getTimeInMillis(), pendingIntent[0]);
+                txtHienthi.setText("Bạn đã hẹn giờ: " + gio + "h: " + phut);
+            }
+        });
+        btncancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
     }
     private void DialogThem(){
         final Dialog dialog = new Dialog(this);
